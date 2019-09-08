@@ -7,7 +7,7 @@ import java.util.Collections;
 
 public class SortVisualizer extends JPanel {
 
-    private static final int ITEM_NUM = 20;
+    private static final int ITEM_NUM = 25;
     private static final int PREF_W = 500;
     private static final int PREF_H = 500;
     private static final int HOR = PREF_W / ITEM_NUM;
@@ -35,6 +35,10 @@ public class SortVisualizer extends JPanel {
             }
         });
 
+        String sorts[] = {"Bubble Sort", "Selection Sort", "Merge Sort"};
+        JComboBox c1 = new JComboBox(sorts);
+        JPanel p = new JPanel();
+
         JButton startBtn = new JButton("Start");
         startBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -51,6 +55,7 @@ public class SortVisualizer extends JPanel {
             }
         });
 
+        add(c1);
         add(startBtn);
         add(resetBtn);
     }
@@ -86,6 +91,7 @@ public class SortVisualizer extends JPanel {
         int height = val * VERT;
         int y = HORIZON - height;
         int x = index * HOR;
+        g.setColor(Color.BLACK);
         g.fillRect(x, y, HOR, height);
     }
 
@@ -99,16 +105,5 @@ public class SortVisualizer extends JPanel {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(PREF_W, PREF_H);
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Sort");
-
-        frame.setTitle("Sorting Visualiser");
-        frame.add(new SortVisualizer());
-        frame.pack();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
     }
 }
