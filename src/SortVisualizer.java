@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 public class SortVisualizer extends JPanel {
 
@@ -14,30 +15,43 @@ public class SortVisualizer extends JPanel {
     private static final int VERT = 15;
     private static final int HORIZON = 500;
 
-    private int curIndex = ITEM_NUM - 1;
+    private int curIndex = 0;
 
     private Timer timer = null;
 
     private Integer[] num_list;
+    private int num_list_size;
 
     public SortVisualizer() {
         num_list = initList();
+        num_list_size = num_list.length;
+
+        String sorts[] = {"Bubble Sort", "Selection Sort", "Insertion Sort"};
+        JComboBox c1 = new JComboBox(sorts);
 
         timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (curIndex == 0) {
-                    ((Timer) e.getSource()).stop();
-                } else {
-                    sortOne();
+                String value = c1.getSelectedItem().toString();
+                switch (value) {
+                    case "Bubble Sort":
+                        if (bubbleSortDone()) ((Timer) e.getSource()).stop();
+                        else bubbleSortOnce();
+                        break;
+                    case "Insertion Sort":
+                        if (insertionSortDone()) ((Timer) e.getSource()).stop();
+                        else insertionSortOnce();
+                        break;
+                    case "Selection Sort":
+                        if (selectionSortDone()) ((Timer) e.getSource()).stop();
+                        else selectionSortOnce();
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + value);
                 }
                 repaint();
             }
         });
-
-        String sorts[] = {"Bubble Sort", "Selection Sort", "Merge Sort"};
-        JComboBox c1 = new JComboBox(sorts);
-        JPanel p = new JPanel();
 
         JButton startBtn = new JButton("Start");
         startBtn.addActionListener(new ActionListener() {
@@ -50,7 +64,7 @@ public class SortVisualizer extends JPanel {
         resetBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 num_list = initList();
-                curIndex = ITEM_NUM - 1;
+                curIndex = 0;
                 repaint();
             }
         });
@@ -60,22 +74,51 @@ public class SortVisualizer extends JPanel {
         add(resetBtn);
     }
 
-    private void sortOne() {
-        int currentMax = num_list[0];
-        int currentMaxIndex = 0;
+    private boolean selectionSortDone() {
+        return (curIndex == num_list_size);
+    }
 
-        for (int j = 1; j <= curIndex; j++) {
-            if (currentMax < num_list[j]) {
-                currentMax = num_list[j];
-                currentMaxIndex = j;
+    private void selectionSortOnce() {
+        int min_idx = curIndex;
+        for (int j = curIndex + 1; j < num_list_size; j++)
+            if (num_list[j] < num_list[min_idx])
+                min_idx = j;
+
+        int temp = num_list[min_idx];
+        num_list[min_idx] = num_list[curIndex];
+        num_list[curIndex] = temp;
+        curIndex++;
+    }
+
+
+    private boolean insertionSortDone() {
+        return (curIndex == num_list_size);
+    }
+
+    private void insertionSortOnce() {
+        System.out.println("Insertion Sort");
+        int key = num_list[curIndex];
+        int j = curIndex - 1;
+        while (j >= 0 && num_list[j] > key) {
+            num_list[j + 1] = num_list[j];
+            j = j - 1;
+        }
+        num_list[j + 1] = key;
+        curIndex++;
+    }
+
+    private boolean bubbleSortDone() {
+        return (curIndex == num_list_size - 1);
+    }
+
+    private void bubbleSortOnce() {
+        for (int j = 0; j < num_list_size - curIndex - 1; j++)
+            if (num_list[j] > num_list[j + 1]) {
+                int temp = num_list[j];
+                num_list[j] = num_list[j + 1];
+                num_list[j + 1] = temp;
             }
-        }
-
-        if (currentMaxIndex != curIndex) {
-            num_list[currentMaxIndex] = num_list[curIndex];
-            num_list[curIndex] = currentMax;
-        }
-        curIndex--;
+        curIndex++;
     }
 
     private Integer[] initList() {
@@ -102,6 +145,7 @@ public class SortVisualizer extends JPanel {
             draw(g, num_list[i], i);
         }
     }
+
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(PREF_W, PREF_H);
